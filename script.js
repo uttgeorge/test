@@ -1,3 +1,6 @@
+
+
+
 function myFunction() {
     console.log("Function called"); // prints "Function called" to the console
     // rest of the code here
@@ -256,81 +259,6 @@ d3.json(fileName,function(error, graph) {
 	
 	}
 	
-	// bar chart
-	function getPayments(node) {
-	  const payments = [];
-	  
-	  // Add the selected node's payments to the payments array
-	  payments.push(node.total_pay);
-	  
-	  // Loop through the selected node's connected nodes and add their payments to the payments array
-	  node.connectedNodes.forEach(function(connectedNode) {
-	    const connectedNodeObj = nodes.find(node => node.id === connectedNode);
-	    if (connectedNodeObj) {
-	      payments.push(connectedNodeObj.total_pay);
-	    }
-	  });
-	  
-	  return payments;
-	}
-	
-	function createBarChart(payments) {
-	  // Extract the month-year keys from the payments object
-	  const months = Object.keys(payments[0].total_pay);
-	
-	  // Extract the payment values for each month, for all nodes
-	  const data = payments.map(function (payment) {
-	    return months.map(function (month) {
-	      return payment.total_pay[month] || 0;
-	    });
-	  });
-	
-	  // Set up the dimensions and margins for the chart
-	  const margin = { top: 20, right: 20, bottom: 30, left: 40 },
-	    width = 960 - margin.left - margin.right,
-	    height = 500 - margin.top - margin.bottom;
-	
-	  // Set up the x-axis scale
-	  const x = d3.scaleBand().range([0, width]).padding(0.1);
-	  x.domain(months);
-	
-	  // Set up the y-axis scale
-	  const y = d3.scaleLinear().range([height, 0]);
-	  y.domain([0, d3.max(data, function (d) {
-	    return d3.max(d);
-	  })]);
-	
-	  // Create the chart SVG element
-	  const svg = d3.select("body")
-	    .append("svg")
-	    .attr("width", width + margin.left + margin.right)
-	    .attr("height", height + margin.top + margin.bottom)
-	    .append("g")
-	    .attr("transform",
-	      "translate(" + margin.left + "," + margin.top + ")");
-	
-	  // Add the X axis
-	  svg.append("g")
-	    .attr("transform", "translate(0," + height + ")")
-	    .call(d3.axisBottom(x));
-	
-	  // Add the Y axis
-	  svg.append("g")
-	    .call(d3.axisLeft(y));
-	
-	  // Add the bars
-	  svg.selectAll(".bar")
-	    .data(data)
-	    .enter()
-	    .append("rect")
-	    .attr("class", "bar")
-	    .attr("x", function (d, i) { return x(months[i]); })
-	    .attr("y", function (d) { return y(d.reduce(function (a, b) { return a + b; }, 0)); })
-	    .attr("width", x.bandwidth())
-	    .attr("height", function (d) { return height - y(d.reduce(function (a, b) { return a + b; }, 0)); });
-	}
-	
-	// 
 	
 	const fuse = new Fuse(graph.nodes, { keys: ["id"] });
 	var searchBtn = document.getElementById('search-btn')
@@ -348,11 +276,6 @@ d3.json(fileName,function(error, graph) {
 	         // Highlight the selected node and its connected nodes and edges
 	         // highlight_input_node(inputNode);
 	 		highlight_input_node(selectedNode);
-			    // Get an array of payment objects for the selected node and its connected nodes
-			    const payments = getPayments(selectedNode);
-			
-			    // Create a bar chart showing the monthly payments for the selected node and its connected nodes
-			    createBarChart(payments);
 	     }
 	});
 	
@@ -480,9 +403,6 @@ d3.json(fileName,function(error, graph) {
             return o.source === selectedData || o.target === selectedData;
         });
     }
-	
-
-	
 
     function ticked() {
         link.attr("x1",
@@ -524,7 +444,76 @@ d3.json(fileName,function(error, graph) {
         d.fx = null;
         d.fy = null;
     }
-
+	
+	// Create a function to get the monthly total pay of the selected node and its connected nodes
+	function getMonthlyTotalPays(nodeId, graph) {
+	  // Assuming your graph data structure has a method to get connected nodes
+	  const connectedNodes = getNeighbors(nodeId);
+	
+	  // Get data for the selected node and its connected nodes
+	  const nodesData = [nodeId, ...connectedNodes].map((id){
+		return graph.getNodeData(id);  
+	  });
+		
+	  
+	  // Calculate monthly total pays
+	  const monthlyTotalPays = nodesData.reduce((monthlyPays, nodeData) => {
+	    nodeData.payments.forEach((payment) => {
+	      const month = new Date(payment.date).getMonth();
+	      if (monthlyPays[month]) {
+	        monthlyPays[month] += payment.total_pay;
+	      } else {
+	        monthlyPays[month] = payment.total_pay;
+	      }
+	    });
+	    return monthlyPays;
+	  }, {});
+	  
+	  return monthlyTotalPays;
+	  }
+	  
+	  // Create a function to draw the bar chart
+	  function drawBarChart(monthlyTotalPays) {
+	    const ctx = document.getElementById('myChart').getContext('2d');
+	    const labels = Object.keys(monthlyTotalPays).map((month) => `Month ${parseInt(month) + 1}`);
+	    const data = Object.values(monthlyTotalPays);
+	  
+	    new Chart(ctx, {
+	      type: 'bar',
+	      data: {
+	        labels: labels,
+	        datasets: [{
+	          label: 'Total Pay',
+	          data: data,
+	          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+	          borderColor: 'rgba(75, 192, 192, 1)',
+	          borderWidth: 1
+	        }]
+	      },
+	      options:scales: {
+					y: {
+					  beginAtZero: true
+					}
+				  }
+				}
+			  });
+			}
+			
+		// Add an event listener to handle node clicks
+		function onNodeClick(event) {
+		  const nodeId = event.target.id; // Assuming the node's id is stored in the 'id' attribute
+		
+		  const monthlyTotalPays = getMonthlyTotalPays(nodeId, graph);
+		  drawBarChart(monthlyTotalPays);
+		}
+		
+		// Assuming you have a way to get all the nodes, loop through and add the event listener
+		const nodes = graph.getAllNodes();
+		nodes.forEach((node) => {
+		  node.addEventListener('click', onNodeClick);
+		});
+		  
+		  
 });
 }
 
