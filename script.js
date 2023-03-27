@@ -256,6 +256,78 @@ d3.json(fileName,function(error, graph) {
 	
 	}
 	
+	// bar chart
+	function getPayments(node) {
+	  const payments = [];
+	  
+	  // Add the selected node's payments to the payments array
+	  payments.push(node.total_pay);
+	  
+	  // Loop through the selected node's connected nodes and add their payments to the payments array
+	  node.connectedNodes.forEach(function(connectedNode) {
+	    const connectedNodeObj = nodes.find(node => node.id === connectedNode);
+	    if (connectedNodeObj) {
+	      payments.push(connectedNodeObj.total_pay);
+	    }
+	  });
+	  
+	  return payments;
+	}
+	
+	function createBarChart(data) {
+	  const margin = { top: 20, right: 20, bottom: 30, left: 50 };
+	  const width = 400 - margin.left - margin.right;
+	  const height = 300 - margin.top - margin.bottom;
+	
+	  const svg = d3
+	    .select("#chart")
+	    .append("svg")
+	    .attr("width", width + margin.left + margin.right)
+	    .attr("height", height + margin.top + margin.bottom)
+	    .append("g")
+	    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+	
+	  const x = d3.scaleBand().range([0, width]).padding(0.1);
+	  const y = d3.scaleLinear().range([height, 0]);
+	
+	  x.domain(
+	    data.map(function (d) {
+	      return d.month;
+	    })
+	  );
+	  y.domain([
+	    0,
+	    d3.max(data, function (d) {
+	      return d.payment;
+	    }),
+	  ]);
+	
+	  svg
+	    .append("g")
+	    .attr("transform", `translate(0, ${height})`)
+	    .call(d3.axisBottom(x));
+	
+	  svg.append("g").call(d3.axisLeft(y));
+	
+	  svg
+	    .selectAll(".bar")
+	    .data(data)
+	    .enter()
+	    .append("rect")
+	    .attr("class", "bar")
+	    .attr("x", function (d) {
+	      return x(d.month);
+	    })
+	    .attr("y", function (d) {
+	      return y(d.payment);
+	    })
+	    .attr("width", x.bandwidth())
+	    .attr("height", function (d) {
+	      return height - y(d.payment);
+	    });
+	}
+	
+	// 
 	
 	const fuse = new Fuse(graph.nodes, { keys: ["id"] });
 	var searchBtn = document.getElementById('search-btn')
@@ -273,6 +345,11 @@ d3.json(fileName,function(error, graph) {
 	         // Highlight the selected node and its connected nodes and edges
 	         // highlight_input_node(inputNode);
 	 		highlight_input_node(selectedNode);
+			    // Get an array of payment objects for the selected node and its connected nodes
+			    const payments = getPayments(selectedNode);
+			
+			    // Create a bar chart showing the monthly payments for the selected node and its connected nodes
+			    createBarChart(payments);
 	     }
 	});
 	
@@ -400,6 +477,9 @@ d3.json(fileName,function(error, graph) {
             return o.source === selectedData || o.target === selectedData;
         });
     }
+	
+
+	
 
     function ticked() {
         link.attr("x1",
