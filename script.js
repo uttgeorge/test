@@ -196,6 +196,59 @@ d3.json(fileName,function(error, graph) {
     node.append("title").text(function(d) {
         return d.id;
     });
+	
+	function drawBarChart(nodeData) {
+		var chart = document.getElementById("chart");
+		// // Clear the current contents of the table
+		chart.innerHTML = "";
+	  // Select the div element where the chart will be appended
+	  var chartDiv = d3.select("#chart");
+	
+	  // Set the width and height of the chart
+	  var width = 500;
+	  var height = 300;
+	
+	  // Append an SVG element to the chartDiv
+	  var svg = chartDiv.append("svg")
+	      .attr("width", width)
+	      .attr("height", height);
+	
+	  // Create an array of dates and values from the node data
+	  var data = Object.entries(nodeData.total_pay);
+	
+	  // Set the margins for the chart
+	  var margin = {top: 20, right: 20, bottom: 30, left: 40};
+	
+	  // Set the x and y scales for the chart
+	  var x = d3.scaleBand().range([margin.left, width - margin.right]).padding(0.1);
+	  var y = d3.scaleLinear().range([height - margin.bottom, margin.top]);
+	
+	  // Set the domains for the x and y scales
+	  x.domain(data.map(function(d) { return d[0]; }));
+	  y.domain([0, d3.max(data, function(d) { return d[1]; })]);
+	
+	  // Append the x axis to the chart
+	  svg.append("g")
+	      .attr("transform", "translate(0," + (height - margin.bottom) + ")")
+	      .call(d3.axisBottom(x))
+	
+	  // Append the y axis to the chart
+	  svg.append("g")
+	      .attr("transform", "translate(" + margin.left + ",0)")
+	      .call(d3.axisLeft(y))
+	
+	  // Append the bars to the chart
+	  svg.selectAll(".bar")
+	      .data(data)
+	      .enter().append("rect")
+	      .attr("class", "bar")
+	      .attr("x", function(d) { return x(d[0]); })
+	      .attr("y", function(d) { return y(d[1]); })
+	      .attr("width", x.bandwidth())
+	      .attr("height", function(d) { return height - margin.bottom - y(d[1]); });
+	}
+
+
 
     function updateTable(node) {
         var table = document.getElementById("connectionsTable");
@@ -329,18 +382,19 @@ d3.json(fileName,function(error, graph) {
         tooltip.transition().duration(500).style("opacity", 0);
     }).on("click",
     function(d) {
+		
+		// Remove highlight from previously clicked nodes and edges
+		node.classed('highlight', false).style("fill", "#1b62a5");
+		link.classed('highlight', false).style("stroke", "#fff");
+				
         // Highlight all connected nodes and edges on click
         var neighbors = getNeighbors(d);
-        node.classed('highlight',
-        function(o) {
-            return neighbors.indexOf(o.id) >= 0;
-        });
-        link.classed('highlight',
-        function(o) {
-            return o.source.id === d.id || o.target.id === d.id;
-        });
-		// document.getElementById("node-input").value = d.id;
+		// node.filter(function(o) { return o.id === d.id; })
+		        node.filter(function(o) { return neighbors.indexOf(o.id) >= 0; }).classed('highlight', true).style("fill", "red");
+		        link.filter(function(o) { return o.source.id === d.id || o.target.id === d.id; }).classed('highlight', true).style("stroke", "red");
+
         updateTable(d);
+		drawBarChart(d);
 		// Center the selected node
 		const desiredTransform = d3.zoomIdentity
 		  .translate(window.innerWidth / 2 - d.x, window.innerHeight / 4 - d.y)
