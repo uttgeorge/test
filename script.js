@@ -16,8 +16,11 @@ var simulation = d3.forceSimulation()
 })).force("charge", d3.forceManyBody().strength(-50)).force("center", d3.forceCenter(innerWidth / 2, innerHeight / 2))
 .alphaTarget(0.1);
 // "graph_data_test2.json"
+
+
 // Define a variable to hold the current file name
 var fileName = 'data1.json';
+
 function loadData(fileName) {
 	const container = d3.select('#graph');
 	container.html('');
@@ -36,6 +39,23 @@ d3.json(fileName,function(error, graph) {
     var zoom_handler = d3.zoom().on("zoom", zoom_actions);
 	
 	
+	// Define variables for selectedDate and scale for size of node
+	//       var selectedDate = "202209";
+	//       var nodeScale = d3.scaleLinear()
+	//         .domain([0, d3.max(graph.nodes, d => d.total_pay[selectedDate])])
+	//         .range([5, 20]);
+	
+	//       // Loop through each node in data and create a circle element with attributes
+	//       var circles = svg.selectAll("circle")
+	//         .data(graph.nodes)
+	//         .enter().append("circle")
+	//         .attr("cx", function(d) { return d.x; })
+	//         .attr("cy", function(d) { return d.y; })
+	//         .attr("r", function(d) {
+	//           return isNaN(d.total_pay[selectedDate]) ? 0 : nodeScale(d.total_pay[selectedDate]);
+	//         });
+		
+    // 
     zoom_handler(svg);
 	
     function zoom_actions() {
@@ -279,6 +299,24 @@ d3.json(fileName,function(error, graph) {
 	     }
 	});
 	
+	// var searchBtn = document.getElementById('search-btn');
+	// searchBtn.addEventListener('click', function() {
+	//     // Get the value of the input box
+	//     var inputNode = document.getElementById('node-search').value;
+	//     // var force = d3.forceSimulation()
+	//     // var nodes = force.nodes();
+	//     // Find the node with the given ID
+	//     var selectedNode = nodes.find(function(n) {
+	//         return n.id === inputNode;
+	//     });
+	    
+	//     if (selectedNode) {
+	//         // Highlight the selected node and its connected nodes and edges
+	//         // highlight_input_node(inputNode);
+	// 		highlight_input_node(selectedNode);
+	//     }
+	// });
+	
 	
     node.on("mouseover",
     function(d) {
@@ -444,79 +482,26 @@ d3.json(fileName,function(error, graph) {
         d.fx = null;
         d.fy = null;
     }
-	
-	// Create a function to get the monthly total pay of the selected node and its connected nodes
-	function getMonthlyTotalPays(nodeId, graph) {
-	  // Assuming your graph data structure has a method to get connected nodes
-	  const connectedNodes = getNeighbors(nodeId);
-	
-	  // Get data for the selected node and its connected nodes
-	  const nodesData = [nodeId, ...connectedNodes].map((id){
-		return graph.getNodeData(id);  
-	  });
-		
-	  
-	  // Calculate monthly total pays
-	  const monthlyTotalPays = nodesData.reduce((monthlyPays, nodeData) => {
-	    nodeData.payments.forEach((payment) => {
-	      const month = new Date(payment.date).getMonth();
-	      if (monthlyPays[month]) {
-	        monthlyPays[month] += payment.total_pay;
-	      } else {
-	        monthlyPays[month] = payment.total_pay;
-	      }
-	    });
-	    return monthlyPays;
-	  }, {});
-	  
-	  return monthlyTotalPays;
-	  }
-	  
-	  // Create a function to draw the bar chart
-	  function drawBarChart(monthlyTotalPays) {
-	    const ctx = document.getElementById('myChart').getContext('2d');
-	    const labels = Object.keys(monthlyTotalPays).map((month) => `Month ${parseInt(month) + 1}`);
-	    const data = Object.values(monthlyTotalPays);
-	  
-	    new Chart(ctx, {
-	      type: 'bar',
-	      data: {
-	        labels: labels,
-	        datasets: [{
-	          label: 'Total Pay',
-	          data: data,
-	          backgroundColor: 'rgba(75, 192, 192, 0.2)',
-	          borderColor: 'rgba(75, 192, 192, 1)',
-	          borderWidth: 1
-	        }]
-	      },
-	      options:scales: {
-					y: {
-					  beginAtZero: true
-					}
-				  }
-				}
-			  });
-			}
-			
-		// Add an event listener to handle node clicks
-		function onNodeClick(event) {
-		  const nodeId = event.target.id; // Assuming the node's id is stored in the 'id' attribute
-		
-		  const monthlyTotalPays = getMonthlyTotalPays(nodeId, graph);
-		  drawBarChart(monthlyTotalPays);
-		}
-		
-		// Assuming you have a way to get all the nodes, loop through and add the event listener
-		const nodes = graph.getAllNodes();
-		nodes.forEach((node) => {
-		  node.addEventListener('click', onNodeClick);
-		});
-		  
-		  
+
 });
 }
 
+// // Add event listeners to each of your tab buttons
+// document.addEventListener('DOMContentLoaded', function() {
+//   if (document.querySelector('#tab-1')) {
+//     document.querySelector('#tab-1').addEventListener('click', function() {
+//        fileName = 'data1.json'; // Update the current file name
+//        loadData('data1.json'); // Call the function to load data with the new file name
+//     });
+//   }
+
+//   if (document.querySelector('#tab-2')) {
+//     document.querySelector('#tab-2').addEventListener('click', function() {
+//        fileName = 'data2.json'; // Update the current file name
+//        loadData('data2.json'); // Call the function to load data with the new file name
+//     });
+//   }
+// });
 
 loadData('data1.json');
 
@@ -530,5 +515,8 @@ document.querySelector('#tab-2-btn').addEventListener('click', function() {
   fileName = 'data2.json';
   loadData(fileName);
 });
+
+
+
 
 
