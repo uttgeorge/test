@@ -1,0 +1,139 @@
+/* Set the background color to black */
+body {
+  background-color: #1a1a1a;
+  color: #ccc;
+  font-size: 16px; /* smaller font size */
+}
+
+/* Add some padding around the graph */
+#graph {
+  padding: 10px;
+}
+
+/* Style the tab container */
+.tab {
+  overflow: hidden;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+/* Style the tab buttons */
+.tab button {
+  background-color: #333;
+  color: #fff;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: background-color 0.3s ease-out;
+  border-radius: 5px;
+}
+
+/* Change the color of the active tab button */
+.tab button.active {
+  background-color: #4CAF50;
+}
+
+/* Style the table */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+
+/* Style the table header */
+th {
+  background-color: #333;
+  color: white;
+}
+
+/* Style the table rows */
+tr:nth-child(even){background-color: #333}
+
+/* Change the color of links */
+a {
+  color: #fff;
+}
+
+/* Style the search input and button */
+#node-search {
+  padding: 8px;
+  margin-right: 10px;
+  margin-left: 10px;
+  border-radius: 5px;
+  border: none;
+  outline: none;
+}
+
+#search-btn {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  outline: none;
+  padding: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-out;
+  border-radius: 5px;
+}
+
+#search-btn:hover {
+  background-color: #4CAF50;
+}
+
+/* Style the month range input */
+#month {
+/* 	margin-left: 20px;
+	margin-right: 20px; */
+  width: 200px;
+}
+
+#month_box {
+	margin-left: 20px;
+
+}
+#node-search-box{
+	
+	margin-right: 20px;
+}
+#month-container {
+  display: flex;
+  align-items: center;
+}
+
+/* Style the selected month display */
+#selected-month {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+/* Style the refresh button */
+#refresh-btn {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  outline: none;
+  padding: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-out;
+  border-radius: 5px;
+  margin-left: 20px;
+}
+
+#refresh-btn:hover {
+  background-color: #4CAF50;
+}
+
+.node {
+	stroke: #fff;
+	stroke-width: 1.5px;
+}
+
+.link {
+	stroke: #999;
+	stroke-opacity: 0.6;
+}
