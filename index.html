@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<link rel="stylesheet" type="text/css" href="dark_mode.css" />
+		<title>
+			小世界mcn机构关联关系图
+		</title>
+	</head>
+	<body>
+		<header>
+			<h1>
+				小世界mcn机构关联关系图
+			</h1>
+		</header>
+		<script src="https://d3js.org/d3.v4.min.js">
+		</script>
+		<div class="tab">
+			<button id="tab-1-btn" class="tablinks active">
+				不含IP地址
+			</button>
+			<button id="tab-2-btn" class="tablinks">
+				含IP地址
+			</button>
+			<button id="refresh-btn" onclick="location.reload()">
+				Refresh
+			</button>
+		</div>
+		<div style="height: 20px;">
+		</div>
+		<div id="tab-content">
+			<!-- Your content here -->
+			<div id="month-container">
+				<label id="node-search-box" for="node-search">
+					输入公司名称:
+				</label>
+				<input id="node-search" type="text" value="可模糊查询" />
+				<button id="search-btn">
+					Search
+				</button>
+				<label id="month_box" for="month">
+					选择月份:
+				</label>
+				<input type="range" id="month" name="month" value="0" />
+				<div id="selected-month">
+				</div>
+			</div>
+			<div style="height: 20px;">
+			</div>
+			<div id="chart-container">
+			</div>
+			<div id="graph">
+			</div>
+			<!-- place the graph here -->
+			<table id="connectionsTable">
+				<thead>
+					<tr>
+						<th>
+							关联关系公司
+						</th>
+						<th>
+							相同邮箱
+						</th>
+						<th>
+							相同手机号
+						</th>
+						<th>
+							相同法人身份证号码
+						</th>
+						<th>
+							相似注册地址
+						</th>
+						<th>
+							相同IP地址
+						</th>
+					</tr>
+				</thead>
+				<tbody id="table-body">
+				</tbody>
+			</table>
+			<script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js">
+			</script>
+			<script type="text/javascript" src="switch.js">
+			</script>
+			<script type="text/javascript" src="script.js">
+			</script>
+			<script type="text/javascript" src="bar.js">
+			</script>
+			<script type="text/javascript" src="style.js">
+			</script>
+		</div>
+	</body>
+
+</html>
